@@ -10,7 +10,7 @@ It's executing an IMAP telnet with credentials and sends a few `STATUS (unseen)`
 To make it work, all you need is some cron:
 
 ```
-*/1 * * * * /bin/bash /path/to/mailcheck/notifymail.bash example@example.com:S3Cr#t@webmail.example.com >> /home/abluchet/mailcheck/notfymail.log
+*/1 * * * * /bin/bash /path/to/mailcheck/notifymail.bash example@example.com:S3Cr#t@webmail.example.com
 ```
 
 Command argument is of the format:
