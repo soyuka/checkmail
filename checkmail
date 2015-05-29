@@ -1,0 +1,89 @@
+#!/usr/bin/expect -f
+
+# adapted from http://wiki.tcl.tk/9270
+# interesting imap commands draft : http://busylog.net/telnet-imap-commands-note/
+# see imap4 rfc + status extension
+
+log_user 0    ;# hide interaction, i.e. do not display to stdout
+ #num messages
+set num 0
+set timeout 100
+match_max 100000
+
+set arguments [lindex $argv 0]
+set lst [split $arguments "@"]
+
+set l [llength $lst]
+
+# is username is a full email address
+if { [llength $lst] == 3 } {
+  set lst_user [split [lindex $lst 0]@[lindex $lst 1] ":"]
+  set lst_host [split [lindex $lst 2] ":"]
+} else {
+  set lst_user [split [lindex $lst 0] ":"]
+  set lst_host [split [lindex $lst 1] ":"]
+}
+
+set user [lindex $lst_user 0]
+set pass [lindex $lst_user 1]
+set server [lindex $lst_host 0]
+set port [lindex $lst_host 1]
+
+if {$port == ""} {
+  set port 143
+}
+
+spawn telnet $server $port
+expect {
+timeout {puts stdout "timeout while connecting to $server"; exit 1}
+"* OK"
+}
+
+send "a001 login $user $pass\r"
+expect {
+timeout {puts stdout "timed out after login"; exit 1}
+"a001 NO" {puts stdout "bad login"; exit 1}
+"a001 OK"
+}
+
+send "a002 LIST \"\" \"*\"\r"
+expect {
+timeout {puts stdout "timed out after examining inbox"; exit 1}
+"a002 NO" {puts stdout "could not examine inbox"; exit 1}
+"a002 OK"
+}
+
+set inbox_list $expect_out(buffer)
+
+#for each inbox
+foreach rec $inbox_list {
+  set inbox ""
+  #test if it's a part of main INBOX
+  regexp {(INBOX\/(?!Informatique).*)} $rec -> inbox
+
+  if { [llength $inbox] > 0 } {
+
+    #inbox status for unseed
+    send "a002 STATUS \"$inbox\" (UNSEEN)\r"
+    expect {
+    timeout {puts stdout "timed out after examining inbox"; exit 1}
+    "a002 NO" {puts stdout "could not examine inbox"; exit 1}
+    "a002 OK"
+    }
+
+    set buffer_to_parse $expect_out(buffer)
+    regexp {UNSEEN ([0-9]+)} $buffer_to_parse -> new_msgs
+    incr num $new_msgs
+  }
+}
+
+puts "$num"
+
+send "a003 logout\r"
+expect {
+timeout {puts stdout "timed out after logout"; exit 1}
+"a003 NO" {puts stdout "could not logout"; exit 1}
+"a003 OK"
+}
+
+exit

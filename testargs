@@ -1,0 +1,28 @@
+#!/usr/bin/expect -f
+
+set arguments [lindex $argv 0]
+set lst [split $arguments "@"]
+
+set l [llength $lst]
+
+if { [llength $lst] == 3 } {
+  set lst_user [split [lindex $lst 0]@[lindex $lst 1] ":"]
+  set lst_host [split [lindex $lst 2] ":"]
+} else {
+  set lst_user [split [lindex $lst 0] ":"]
+  set lst_host [split [lindex $lst 1] ":"]
+}
+
+set user [lindex $lst_user 0]
+set pass [lindex $lst_user 1]
+set server [lindex $lst_host 0]
+set port [lindex $lst_host 1]
+
+if {$port == ""} {
+  set port 143
+}
+
+puts $user 
+puts $password 
+puts $host 
+puts $port
