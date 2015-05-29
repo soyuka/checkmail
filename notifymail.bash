@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# http://askubuntu.com/questions/298608/notify-send-doesnt-work-from-crontab
 eval "export $(egrep -z DBUS_SESSION_BUS_ADDRESS /proc/$(ps -u $LOGNAME -ef|grep bin/gnome-shell|grep -v grep|awk '{print $2}')/environ)";
 export DISPLAY=:0
 

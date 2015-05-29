@@ -30,6 +30,8 @@ I've done this in a hurry, there is a regexp test rule on the inbox name (`check
 
 You may want to see the output (set `log_user = 1`) to get your inboxes and set your own rules.
 
+The bash script is calling `notify-send`, make sure binaries exists in your `$PATH`. There is a gnome specific setting to define `DBUS_SESSION_BUS_ADDRESS`, you may need to change it `notifymail.bash:3`
+
 ## Licence
 
 WTFPL
